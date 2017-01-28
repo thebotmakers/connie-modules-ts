@@ -2,10 +2,17 @@
   "name": "connie-modules",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "dist/index.js",
+  "typings": "dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "The Bot Makers",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "@types/mongodb": "^2.1.37",
+    "botkit": "^0.4.9",
+    "mongodb": "^2.2.22",
+    "typescript": "^2.1.5"
+  }
 }
