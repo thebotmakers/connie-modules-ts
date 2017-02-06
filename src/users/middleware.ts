@@ -1,6 +1,6 @@
-import { UserBase } from './UserBase';
+import { UserBase } from './model/UserBase';
 import { Db } from 'mongodb'
-import {Graph} from '../../facebook'
+import {Graph} from '../facebook'
 
 export interface IUsersMiddlewareConfig {
     db: Db,
