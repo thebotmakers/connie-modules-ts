@@ -1,6 +1,7 @@
 import { User } from './model/User';
 import { Db } from 'mongodb'
 import {Graph} from '../facebook'
+const uuidV1 = require('uuid/v1');
 
 export interface IUsersMiddlewareConfig {
     db: Db,
@@ -13,26 +14,28 @@ export function installMiddleware(controller: any, config: IUsersMiddlewareConfi
 
     function receive(bot, message, next) {
 
-        let connieId = `${bot.type}.${message.user}`
-        let collection = config.db.collection('users')
+        let collection = config.db.collection('users');
+        let query = {};
 
-        collection.find({ connieId: connieId })
+        query[`${bot.type}Id`] = message.user;
+
+        collection.find(query)
             .limit(1)
             .next()
             .then<User>((user: User) => {
 
                 if (user) {
 
-                    return user
+                    return user;
                 }
                 else {
 
-                    user = new User()
-                    user.connieId = connieId
+                    user = new User();
+                    user.fbId = message.user;
+                    user.connieId = uuidV1();
 
                     return collection.insertOne(user).then(result => {
-
-                        return user
+                        return user;
                     })
                 }
             }).then(user => {
@@ -46,13 +49,16 @@ export function installMiddleware(controller: any, config: IUsersMiddlewareConfi
                         if(!('error' in data))
                         {
                             user.facebookPageScopedProfile = data    
+
+                            user.firstName = user.facebookPageScopedProfile.first_name
+                            user.lastName = user.facebookPageScopedProfile.last_name                             
                         }
                         else
                         {
                             throw data.error
                         }                        
 
-                        return collection.updateOne({ connieId: user.connieId}, { $set: { facebookPageScopedProfile: data } }).then(result => user) // update and transform back to user
+                        return collection.updateOne({ connieId: user.connieId}, user).then(result => user) // update and transform back to user
                     })
                 }
 
