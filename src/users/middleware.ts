@@ -1,4 +1,4 @@
-import { UserBase } from './model/UserBase';
+import { User } from './model/User';
 import { Db } from 'mongodb'
 import {Graph} from '../facebook'
 
@@ -19,7 +19,7 @@ export function installMiddleware(controller: any, config: IUsersMiddlewareConfi
         collection.find({ connieId: connieId })
             .limit(1)
             .next()
-            .then<UserBase>((user: UserBase) => {
+            .then<User>((user: User) => {
 
                 if (user) {
 
@@ -27,7 +27,7 @@ export function installMiddleware(controller: any, config: IUsersMiddlewareConfi
                 }
                 else {
 
-                    user = new UserBase()
+                    user = new User()
                     user.connieId = connieId
 
                     return collection.insertOne(user).then(result => {
