@@ -15,10 +15,13 @@
     "@types/express": "^4.0.35",
     "@types/mongodb": "^2.1.38",
     "@types/node-fetch": "^1.6.7",
+    "@types/restify": "^2.0.38",
+    "botbuilder": "^3.6.0",
     "botkit": "^0.4.9",
     "express": "^4.14.1",
     "mongodb": "^2.2.22",
     "node-fetch": "^1.6.3",
+    "restify": "^4.3.0",
     "typescript": "^2.1.5",
     "uuid": "^3.0.1"
   }
