@@ -1,13 +1,19 @@
-import { IAddress } from 'botbuilder';
+import { IAddress, IIdentity } from 'botbuilder';
 import { IFacebookPageScopedProfile } from '../../facebook';
 
+export class User implements IIdentity {
 
-export class User {
-    connieId: string; 
-    fbId:string;
+    connieId:string;
+    
+    // IIdentity
+    id: string;
+
     firstName: string;
     lastName: string;
+
+    addresses: { [key: string]: IAddress } = {}
+
     facebookPageScopedProfile: IFacebookPageScopedProfile;
+
     custom: any;
-    bfAddres:IAddress;
 }

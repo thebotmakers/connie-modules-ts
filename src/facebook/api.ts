@@ -11,14 +11,14 @@ export interface IFacebookPageScopedProfile {
     error?:any
 }
 
-export class Graph {
+export class Api {
 
     api: string
     token: string
 
-    constructor(token: string, api: string = 'https://graph.facebook.com/v2.8') {
+    constructor(token: string, apiUrl: string = 'https://graph.facebook.com/v2.8') {
         this.token = token
-        this.api = api
+        this.api = apiUrl
     }
 
     getProfile(id: string): Promise<IFacebookPageScopedProfile> {
