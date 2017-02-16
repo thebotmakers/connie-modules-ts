@@ -1,4 +1,6 @@
+import { IAddress } from 'botbuilder';
 import { IFacebookPageScopedProfile } from '../../facebook';
+
 
 export class User {
     connieId: string; 
@@ -7,4 +9,5 @@ export class User {
     lastName: string;
     facebookPageScopedProfile: IFacebookPageScopedProfile;
     custom: any;
+    bfAddres:IAddress;
 }

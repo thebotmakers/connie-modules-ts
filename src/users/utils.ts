@@ -1,11 +1,23 @@
 import { User } from './model/User';
 import { Db } from 'mongodb'
-import {Graph} from '../facebook'
+import { Graph } from '../facebook'
+import { IAddress, IIdentity } from 'botbuilder'
+
 const uuidV1 = require('uuid/v1');
 
 export interface IUsersMiddlewareConfig {
     db: Db,
     FACEBOOK_PAGE_TOKEN: string
+}
+
+export const installLookupUser = (bot) => {
+
+}
+
+export const lookupUser = (address: IAddress, done: (err: Error, user: IIdentity) => void) => {
+
+
+
 }
 
 export function installMiddleware(controller: any, config: IUsersMiddlewareConfig) {
@@ -45,20 +57,18 @@ export function installMiddleware(controller: any, config: IUsersMiddlewareConfi
                     let fb = new Graph(config.FACEBOOK_PAGE_TOKEN)
 
                     return fb.getProfile(message.user).then(data => {
-                        
-                        if(!('error' in data))
-                        {
-                            user.facebookPageScopedProfile = data    
+
+                        if (!('error' in data)) {
+                            user.facebookPageScopedProfile = data
 
                             user.firstName = user.facebookPageScopedProfile.first_name
-                            user.lastName = user.facebookPageScopedProfile.last_name                             
+                            user.lastName = user.facebookPageScopedProfile.last_name
                         }
-                        else
-                        {
+                        else {
                             throw data.error
-                        }                        
+                        }
 
-                        return collection.updateOne({ connieId: user.connieId}, user).then(result => user) // update and transform back to user
+                        return collection.updateOne({ connieId: user.connieId }, user).then(result => user) // update and transform back to user
                     })
                 }
 
@@ -68,7 +78,7 @@ export function installMiddleware(controller: any, config: IUsersMiddlewareConfi
                 next(); // end middleware
             })
             .catch(error => {
-                
+
                 console.log("Error getting data from user", error)
 
                 next(); // end middleware
