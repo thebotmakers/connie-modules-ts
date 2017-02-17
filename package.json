@@ -11,11 +11,8 @@
   "author": "The Bot Makers",
   "license": "ISC",
   "dependencies": {
-    "@types/es6-shim": "^0.31.32",
-    "@types/express": "^4.0.35",
-    "@types/mongodb": "^2.1.38",
-    "@types/node-fetch": "^1.6.7",
-    "@types/restify": "^2.0.38",
+    "@types/node": "^7.0.5",
+    "@types/promise": "^7.1.30",
     "botbuilder": "^3.6.0",
     "botkit": "^0.4.9",
     "express": "^4.14.1",

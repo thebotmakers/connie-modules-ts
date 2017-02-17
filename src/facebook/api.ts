@@ -1,14 +1,14 @@
 let fetch = require('node-fetch')  // TODO: import * as fetch from 'node-fetch' didn't worked :/
 
 export interface IFacebookPageScopedProfile {
-    id:string;
+    id: string;
     first_name?: string;
     last_name?: string;
     profile_pic?: string;
     locale?: string;
     timezone?: number;
     gender?: string;
-    error?:any
+    error?: any
 }
 
 export class Api {
@@ -21,8 +21,10 @@ export class Api {
         this.api = apiUrl
     }
 
+
+
     getProfile(id: string): Promise<IFacebookPageScopedProfile> {
-        
+
         return fetch(`${this.api}/${id}?access_token=${this.token}`)
             .then(response => {
                 return response.json()
