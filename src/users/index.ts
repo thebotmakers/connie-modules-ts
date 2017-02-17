@@ -8,7 +8,7 @@ import * as uuid from 'uuid/v1'
 import { Api } from './api'
 
 export const install = (bot: UniversalBot, db: Db, config: { FACEBOOK_PAGE_TOKEN: string }) => {
-
+    
     let collection = db.collection('users')
 
     // setup lookup user setting
@@ -23,20 +23,18 @@ export const install = (bot: UniversalBot, db: Db, config: { FACEBOOK_PAGE_TOKEN
 
                 if (user) {
 
-                    user.id = address.user.id;
-
                     return user;
                 }
                 else {
 
                     user = new User();
 
-                    user.connieId = uuid();
+                    user.connieId = uuid();                    
+                    user.name = address.user.name;
+                    user.id = address.user.id;
                     user.addresses[address.channelId] = address;
 
-                    return collection.insertOne(user).then(result => {
-
-                        user.id = address.user.id;
+                    return collection.insertOne(user).then(result => {                        
 
                         return user;
                     })
@@ -45,7 +43,7 @@ export const install = (bot: UniversalBot, db: Db, config: { FACEBOOK_PAGE_TOKEN
 
             .then(user => {
 
-                if (!user.facebookPageScopedProfile && (address.channelId == 'facebook' || address.channelId == 'emulator')) {
+                if (!user.facebookPageScopedProfile && address.channelId == 'facebook') {
 
                     let fb = new FaceobokApi(config.FACEBOOK_PAGE_TOKEN)
 

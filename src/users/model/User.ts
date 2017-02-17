@@ -7,6 +7,7 @@ export class User implements IIdentity {
     
     // IIdentity
     id: string;
+    name:string;
 
     firstName: string;
     lastName: string;
