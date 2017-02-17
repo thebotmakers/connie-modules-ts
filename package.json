@@ -6,7 +6,7 @@
   "typings": "dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "postinstall": "./node_modules/.bin/tsc -p ."
+    "postinstall": "./node_modules/.bin/tsc -p ./node_modules/@connie/modules"
   },
   "author": "The Bot Makers",
   "license": "ISC",
