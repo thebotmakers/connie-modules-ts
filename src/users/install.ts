@@ -4,7 +4,7 @@ import { User } from './model/User';
 import { Db } from 'mongodb';
 import { IAddress, IIdentity, UniversalBot, Message } from 'botbuilder';
 import * as uuid from 'uuid/v1'
-import { Api } from './api'
+import { Api } from './model/api'
 
 export const install = (bot: UniversalBot, db: Db, config: { FACEBOOK_PAGE_TOKEN: string }) => {
 
