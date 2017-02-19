@@ -1,5 +1,5 @@
 import { IAddress } from 'botbuilder';
-import { User } from './model/User';
+import { User } from './User';
 import { Server } from 'restify'
 import { Db, Collection } from 'mongodb'
 
