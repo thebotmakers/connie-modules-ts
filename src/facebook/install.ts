@@ -26,7 +26,8 @@ export function install(bot: UniversalBot, config: IFacebookModuleSettings) {
                     switch (event.sourceEvent.message.sticker_id) {
                         case 369239263222822:
 
-                            event.text = ':like:'
+                            // adding the text property makes the event be interpreted as a normal message
+                            (event as any).text = ':like:'
                             break;
                     }
                 }
