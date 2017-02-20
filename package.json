@@ -18,6 +18,7 @@
     "express": "^4.14.1",
     "mongodb": "^2.2.22",
     "node-fetch": "^1.6.3",
+    "request": "^2.79.0",
     "restify": "^4.3.0",
     "typescript": "^2.1.5",
     "uuid": "^3.0.1"
