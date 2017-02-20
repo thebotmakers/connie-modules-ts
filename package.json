@@ -6,7 +6,8 @@
   "typings": "dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepublish": "rm -rf dist && ./node_modules/.bin/tsc -p ."
+    "version": "rm -rf dist && ./node_modules/.bin/tsc -p .",
+    "postversion": "git push && git push --tags"
   },
   "author": "The Bot Makers",
   "license": "ISC",
@@ -15,7 +16,6 @@
     "@types/node": "^7.0.5",
     "@types/promise": "^7.1.30",
     "botbuilder": "^3.6.0",
-    "botkit": "^0.4.9",
     "express": "^4.14.1",
     "mongodb": "^2.2.22",
     "node-fetch": "^1.6.3",
