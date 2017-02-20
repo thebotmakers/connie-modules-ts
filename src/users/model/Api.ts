@@ -17,7 +17,7 @@ export class Api {
         return this.collection.find({ connieId: connieId }).limit(1).next()
     }
 
-    getByAddress(address:IAddress):Promise<User> {
+    getByAddress(address: IAddress): Promise<User> {
 
         let query = {}
 
@@ -29,16 +29,4 @@ export class Api {
     getAll(): Promise<User[]> {
         return this.collection.find().toArray()
     }
-}
-
-export function setRoutes(db: Db, server: Server) {
-
-    let api = new Api(db)
-
-    server.get('/api/users', function (req, res, next) {
-
-        api.getAll().then(users => {
-            res.send(users)
-        })
-    })
 }

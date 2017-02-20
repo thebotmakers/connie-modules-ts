@@ -11,6 +11,7 @@
   "author": "The Bot Makers",
   "license": "ISC",
   "dependencies": {
+    "@types/express": "^4.0.35",
     "@types/node": "^7.0.5",
     "@types/promise": "^7.1.30",
     "botbuilder": "^3.6.0",

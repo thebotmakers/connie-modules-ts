@@ -1,3 +1,4 @@
+import { Server } from 'restify';
 
 import { Api as FaceobokApi, IFacebookPageScopedProfile } from './../facebook';
 import { User } from './model/User';
@@ -6,7 +7,9 @@ import { IAddress, IIdentity, UniversalBot, Message } from 'botbuilder';
 import * as uuid from 'uuid/v1'
 import { Api } from './model/api'
 
-export const install = (bot: UniversalBot, db: Db, config: { FACEBOOK_PAGE_TOKEN: string }) => {
+import { Application } from 'express'
+
+export const install = (bot: UniversalBot, db: Db, server: Application, config: { FACEBOOK_PAGE_TOKEN: string }) => {
 
     let collection = db.collection('users')
 
@@ -80,5 +83,14 @@ export const install = (bot: UniversalBot, db: Db, config: { FACEBOOK_PAGE_TOKEN
                 done(error, address.user)
             })
 
+    })
+
+    server.get('/api/users', function (req, res, next) {
+
+        let api = new Api(db)
+
+        api.getAll().then(users => {
+            res.send(users)
+        })
     })
 }
