@@ -6,7 +6,7 @@
   "typings": "dist/index.d.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "version": "rm -rf dist && ./node_modules/.bin/tsc -p .",
+    "version": "node bin/version.js",
     "postversion": "git push && git push --tags"
   },
   "author": "The Bot Makers",
@@ -16,11 +16,13 @@
     "@types/node": "^7.0.5",
     "@types/promise": "^7.1.30",
     "botbuilder": "^3.6.0",
+    "del": "^2.2.2",
     "express": "^4.14.1",
     "mongodb": "^2.2.22",
     "node-fetch": "^1.6.3",
     "request": "^2.79.0",
     "restify": "^4.3.0",
+    "shell": "^0.3.2",
     "typescript": "^2.1.5",
     "uuid": "^3.0.1"
   }
