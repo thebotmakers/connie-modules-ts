@@ -5,10 +5,10 @@ import { User } from './model/User';
 import { Db } from 'mongodb';
 import { IAddress, IIdentity, UniversalBot, Message } from 'botbuilder';
 import * as uuid from 'uuid/v1'
-import { Api } from './model/api'
+import { Api } from './model/Api'
 
 import { Application } from 'express'
-
+ 
 export const install = (bot: UniversalBot, db: Db, server: Application, config: { FACEBOOK_PAGE_TOKEN: string }) => {
 
     let collection = db.collection('users')
