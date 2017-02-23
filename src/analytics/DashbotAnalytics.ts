@@ -26,10 +26,8 @@ export class DashbotAnalytics {
         }, function (error, response, body) {
 
             if (error) {
-                console.log(error)
-            } else {
-                console.log(response.statusCode, body)
+                console.error("Error sending data to dashbot", error)
             }
-        })
+        });
     }
 }
