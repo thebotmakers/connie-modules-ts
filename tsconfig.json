@@ -9,5 +9,10 @@
     },
     "include": [
         "src"
+    ],
+    "exclude": [
+        "dist",
+        "bin",
+        "node_modules"
     ]
 }

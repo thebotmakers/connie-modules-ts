@@ -6,12 +6,18 @@ import { Db } from 'mongodb';
 import { IAddress, IIdentity, UniversalBot, Message } from 'botbuilder';
 import * as uuid from 'uuid/v1'
 import { Api } from './model/api'
-
 import { Application } from 'express'
 
-export const install = (bot: UniversalBot, db: Db, server: Application, config: { FACEBOOK_PAGE_TOKEN: string }) => {
+export interface IUsersInstallConfig {
 
-    let collection = db.collection('users')
+    FACEBOOK_PAGE_TOKEN: string,
+    transformUser?: (user: User) => User;
+}
+
+
+export const install = (bot: UniversalBot, db: Db, server: Application, config: IUsersInstallConfig) => {
+
+    let collection = db.collection('users') 
 
     // setup lookup user setting
 
@@ -31,6 +37,7 @@ export const install = (bot: UniversalBot, db: Db, server: Application, config: 
 
                     user = new User();
 
+                    user.custom = {}
                     user.connieId = uuid();
                     user.name = address.user.name;
                     user.id = address.user.id;
@@ -71,11 +78,15 @@ export const install = (bot: UniversalBot, db: Db, server: Application, config: 
                         }
                     })
                 }
+
+                return user;
             })
 
             .then(user => {
+                
+                debugger;
 
-                done(null, user)
+                done(null, (config.transformUser) ? config.transformUser(user) : user)
             })
 
             .catch((error: Error) => {

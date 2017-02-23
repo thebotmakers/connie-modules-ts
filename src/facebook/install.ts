@@ -18,7 +18,7 @@ export function install(bot: UniversalBot, config: IFacebookModuleSettings) {
     }
 
     bot.use(
-        {
+        {            
             receive: (event, next) => {
 
                 if (event.source == 'facebook') {
