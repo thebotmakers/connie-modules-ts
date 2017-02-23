@@ -83,8 +83,6 @@ export const install = (bot: UniversalBot, db: Db, server: Application, config: 
 
             .then(user => {
                 
-                debugger;
-
                 done(null, (config.transformUser) ? config.transformUser(user) : user)
             })
 
