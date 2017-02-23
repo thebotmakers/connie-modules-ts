@@ -14,7 +14,6 @@ export interface IUsersInstallConfig {
     transformUser?: (user: User) => User;
 }
 
-
 export const install = (bot: UniversalBot, db: Db, server: Application, config: IUsersInstallConfig) => {
 
     let collection = db.collection('users') 
