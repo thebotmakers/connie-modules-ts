@@ -14,14 +14,11 @@ export class Api {
     zendesk: any
 
     constructor(zendesk_url: any, zendesk_account: any, zendesk_token: any) {
-        this.zendesk_url = zendesk_url
-        this.zendesk_account = zendesk_account
-        this.zendesk_token = zendesk_token
 
         this.zendesk = new Zendesk({
-            url: this.zendesk_url, // https://example.zendesk.com
-            email: this.zendesk_account, // me@example.com
-            token: this.zendesk_token // hfkUny3vgHCcV3UfuqMFZWDrLKms4z3W2f6ftjPT
+            url: this.zendesk_url,
+            email: this.zendesk_account,
+            token: this.zendesk_token
         });
     }
 
