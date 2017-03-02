@@ -1,6 +1,6 @@
 # connie-modules
 
-This is the soruce for The Bot Makers bot platform Connie
+This is the source for The Bot Makers bot platform Connie
 
 You can read more about the platform [here](http://www.thebotmakers.com/connie/) 
 
