@@ -1,18 +1,18 @@
 import { Db } from 'mongodb';
 import { User } from './../users/model/User';
-import { UniversalBot } from 'botbuilder';
+import { UniversalBot, Message, IMessage } from 'botbuilder';
 import { Application } from 'express'
 import * as moment from 'moment'
 import * as async from 'async'
 
-export type ProactiveHandler = (bot: UniversalBot, user: User, log: Logger, next, args: any) => void
+export type ProactiveHandler = (bot: UniversalBot, user: User, logger: ProactiveLogger, next, args: any) => void
 
 export interface ILogEntry {
     data: any,
     timestamp?: number
 }
 
-export class Logger {
+export class ProactiveLogger {
 
     constructor(private id: string, private db: Db) {
     }
@@ -37,22 +37,28 @@ export class Logger {
 
 }
 
-const handlers: { [id: string]: { logger: Logger, query: any, callback: ProactiveHandler } } = {}
-
+const handlers: { [id: string]: { logger: ProactiveLogger, query: any, callback: ProactiveHandler } } = {}
+let database: Db;
 
 export interface IProactivHandlerConfig {
     id: string,
-    db: Db,
     query?: any,
     handler: ProactiveHandler
 }
 
-export function add(config:IProactivHandlerConfig) {
+export function add(config: IProactivHandlerConfig) {
 
-    handlers[config.id] = { logger: new Logger(config.id, config.db), query: config.query || {}, callback: config.handler }
+    handlers[config.id] = { logger: new ProactiveLogger(config.id, database), query: config.query || {}, callback: config.handler }
+
+    console.log('Added proactive handler in: /api/proactive/', config.id)
 }
 
 export function install(bot: UniversalBot, db: Db, server: Application) {
+
+    //module wide instance
+    database = db;
+
+    //setup api endpoint 
 
     server.post('/api/proactive/:id', (req, res, next) => {
 
@@ -70,6 +76,8 @@ export function install(bot: UniversalBot, db: Db, server: Application) {
 
                     handlers[id].callback(bot, user, handlers[id].logger, next, req.params);
                 });
+
+                return users;
             });
         }
         else {
@@ -78,4 +86,56 @@ export function install(bot: UniversalBot, db: Db, server: Application) {
 
         next()
     })
+
+    add
+        ({
+            id: 'sendmessage',
+            query: {},
+            handler: (bot: UniversalBot, user: User, logger: ProactiveLogger, next, args: any) => {
+
+                let address = user.addresses[args.channelId]
+
+                let message = new Message()
+                    .text(args.text)
+                    .address(address)
+
+                bot.send(message, (err) => {
+
+                    if (err) {
+                        console.error('ERROR begining dialog to', address.user.name)
+                    }
+                    else {
+
+                        
+                        console.info('Succesfully begun dialog to', address.user.name)
+                    }
+
+                    logger.log({data: {errror: err ? err : null}})
+
+                    next()
+                })
+            }
+        })
+
+    add
+        ({
+            id: 'begindialog',
+            query: {},
+            handler: (bot: UniversalBot, user: User, logger: ProactiveLogger, next, args: any) => {
+
+                let address = user.addresses[args.channelId]
+
+                bot.beginDialog(address, args.dialogId, args.dialogArgs, (err) => {
+
+                    if (err) {
+                        console.error('ERROR begining dialog to', address.user.name)
+                    }
+                    else {
+                        console.info('Succesfully begun dialog to', address.user.name)
+                    }
+                    next()
+                })
+            }
+        })
+
 }
