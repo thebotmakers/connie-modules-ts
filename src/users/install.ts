@@ -5,7 +5,7 @@ import { User } from './model/User';
 import { Db } from 'mongodb';
 import { IAddress, IIdentity, UniversalBot, Message } from 'botbuilder';
 import * as uuid from 'uuid/v1'
-import { Api } from './model/api'
+import { Api } from './model/Api'
 import { Application } from 'express'
 
 export interface IUsersInstallConfig {
