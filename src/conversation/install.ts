@@ -62,15 +62,17 @@ function onReceive(event: any, collection: Collection) {
 }
 
 function onSend(event: any, collection: Collection) {
-    let conversation = new Conversation();
-    conversation.conversationId = event.address.conversation.id;
-    let message = new ConnieMessage();
-    message = event;
-    message.address = event.address;
-    message.sender = "bot";
+    if (event.type == "message") {
+        let conversation = new Conversation();
+        conversation.conversationId = event.address.conversation.id;
+        let message = new ConnieMessage();
+        message = event;
+        message.address = event.address;
+        message.sender = "bot";
 
-    collection.findOneAndUpdate({ "conversationId": conversation.conversationId },
-        { $push: { "messages": message } }, { upsert: true });
+        collection.findOneAndUpdate({ "conversationId": conversation.conversationId },
+            { $push: { "messages": message } }, { upsert: true });
 
-    console.log('------------send           event');
+        console.log('------------send           event');
+    }
 }
