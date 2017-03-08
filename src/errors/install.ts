@@ -1,5 +1,34 @@
+import { IRollbarReporterConfig } from './install';
 import { UniversalBot } from 'botbuilder'
 import * as nodemailer from 'nodemailer'
+import * as rollbar from 'rollbar'
+
+
+export interface IRollbarReporterConfig 
+{
+    token:string,
+    environment: string
+}
+
+export const installRollbarReporter = (bot: UniversalBot, config: IRollbarReporterConfig) => {
+
+    rollbar.init
+    (
+        config.token,        
+        {
+            environment: config.environment
+        }
+    );
+
+    bot.on('error', (err) => {
+        
+        rollbar.handleError(err);
+
+        console.log('Reported error:', err.message);
+    })
+}
+
+
 
 export interface IEmailReporterConfig {
     mailService: string,
