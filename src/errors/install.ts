@@ -1,31 +1,63 @@
+import { User } from '@connie/modules/dist/users';
 import { IRollbarReporterConfig } from './install';
 import { UniversalBot } from 'botbuilder'
 import * as nodemailer from 'nodemailer'
 import * as rollbar from 'rollbar'
 
 
-export interface IRollbarReporterConfig 
-{
-    token:string,
+export interface IRollbarReporterConfig {
+    token: string,
     environment: string
 }
 
 export const installRollbarReporter = (bot: UniversalBot, config: IRollbarReporterConfig) => {
 
+    let originalSessionErrorHandler;
+
     rollbar.init
-    (
-        config.token,        
+        (config.token,
         {
             environment: config.environment
-        }
-    );
+        });
 
-    bot.on('error', (err) => {
-        
-        rollbar.handleError(err);
+    bot.use
+        ({
+            botbuilder: (session, next) => {
 
-        console.log('Reported error:', err.message);
-    })
+                if (!originalSessionErrorHandler) {
+                    originalSessionErrorHandler = session.error;
+                }
+
+                session.error = (err) => {
+
+                    let user = session.message.user as User;
+
+                    rollbar.handleErrorWithPayloadData(
+                        err,
+                        {
+                            custom:
+                            {
+                                message: session.message.text,
+                                channel: session.message.address.channelId,
+                                id: session.message.address.user.id,
+                                sourceEvent: JSON.stringify(session.message.sourceEvent)
+                            }
+                        },
+                        {
+                            user:
+                            {
+                                id: user.connieId,
+                                username: user.name
+                            }
+                        });
+
+                    // call botframework's original handler
+                    return originalSessionErrorHandler.call(session, err);
+                };
+
+                next();
+            }
+        });
 }
 
 
