@@ -1,4 +1,4 @@
-import { User } from '@connie/modules/dist/users';
+import { User } from '../users';
 import { IRollbarReporterConfig } from './install';
 import { UniversalBot } from 'botbuilder'
 import * as nodemailer from 'nodemailer'
