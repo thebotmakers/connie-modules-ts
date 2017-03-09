@@ -4,6 +4,7 @@ export class Ticket {
     custom_fields: Object[];
     comment: string;
     status: Ticket.STATUS;
+    connieId: string;
 }
 
 export module Ticket {

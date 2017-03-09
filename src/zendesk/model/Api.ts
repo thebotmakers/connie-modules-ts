@@ -6,20 +6,32 @@ import { Db, Collection } from 'mongodb'
 
 var Zendesk = require('zendesk-node-api');
 
-export class Api {
+    export class Api {
 
     zendesk_url: string
     zendesk_account: string
     zendesk_token: string
     zendesk: any
+    collection: Collection
 
-    constructor(zendesk_url: any, zendesk_account: any, zendesk_token: any) {
+    constructor(zendesk_url: any, zendesk_account: any, zendesk_token: any, private db: Db) {
+
+        this.collection = db.collection('tickets')
 
         this.zendesk = new Zendesk({
             url: this.zendesk_url,
             email: this.zendesk_account,
             token: this.zendesk_token
         });
+    }
+
+    get(id: string): Promise<Ticket> {
+
+        return this.collection.find({ id: id }).limit(1).next()
+    }
+
+    getAll(): Promise<Ticket[]> {
+        return this.collection.find().toArray()
     }
 
     getTicket(id: number): Promise<any> {
@@ -47,7 +59,7 @@ export class Api {
             custom_fields: ticket.custom_fields
         
         }).then(function(result){
-            
+                      
             return result.ticket;
 
         });
