@@ -11,6 +11,8 @@ export class User implements IIdentity {
 
     firstName: string;
     lastName: string;
+    
+    locale:string;
 
     addresses: { [key: string]: IAddress } = {}
 

@@ -2,12 +2,13 @@
 import { IAddress } from 'botbuilder';
 import { User } from './User';
 import { Server } from 'restify'
-import { Db, Collection } from 'mongodb'
+import { Db, Collection, UpdateWriteOpResult } from 'mongodb'
 
 
 export class Api {
 
-    collection: Collection
+    collection: Collection;
+
     constructor(private db: Db) {
 
         this.collection = db.collection('users')
@@ -29,5 +30,10 @@ export class Api {
 
     getAll(): Promise<User[]> {
         return this.collection.find().toArray()
+    }
+
+    update(connieId: string, update: {}): Promise<UpdateWriteOpResult> {
+
+        return this.collection.updateOne({ connieId }, update)
     }
 }
