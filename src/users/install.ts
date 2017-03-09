@@ -35,17 +35,17 @@ export const install = (bot: UniversalBot, db: Db, server: Application, config: 
                 }
                 else {
 
-                    user = new User();
+                    let newUser = new User();
 
-                    user.custom = {}
-                    user.connieId = uuid();
-                    user.name = address.user.name;
-                    user.id = address.user.id;
-                    user.addresses[address.channelId] = address;
+                    newUser.custom = {}
+                    newUser.connieId = uuid();
+                    newUser.name = address.user.name;
+                    newUser.id = address.user.id;
+                    newUser.addresses[address.channelId] = address;
 
-                    return collection.insertOne(user).then(result => {
+                    return collection.insertOne(newUser).then(result => {
 
-                        return user;
+                        return newUser;
                     })
                 }
             })
