@@ -25,7 +25,11 @@ export class Api {
 
     getProfile(id: string): Promise<IFacebookPageScopedProfile> {
 
-        return fetch(`${this.api}/${id}?access_token=${this.token}`)
+        let url = `${this.api}/${id}?access_token=${this.token}`
+
+        console.log('fetching', url)
+
+        return fetch(url)
             .then(response => {
                 return response.json()
             })
