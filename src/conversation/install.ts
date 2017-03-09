@@ -28,7 +28,7 @@ export function install(bot: UniversalBot, db: Db, recognizer: WatsonRecognizer)
     }
 }
 
-export function installGeneric(bot: UniversalBot, db: Db, recognizer: IIntentRecognizer) {
+export function installGeneric(bot: UniversalBot, db: Db) {
 
     let collection = db.collection('conversations');
 
