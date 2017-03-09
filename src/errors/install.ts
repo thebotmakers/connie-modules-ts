@@ -15,7 +15,8 @@ export const installRollbarReporter = (bot: UniversalBot, config: IRollbarReport
     let originalSessionErrorHandler;
 
     rollbar.init
-        (config.token,
+        (
+        config.token,
         {
             environment: config.environment
         });
@@ -59,8 +60,8 @@ export const installRollbarReporter = (bot: UniversalBot, config: IRollbarReport
             }
         });
 
-        rollbar.handleUncaughtExceptions(config.token, {});
-        rollbar.handleUnhandledRejections(config.token);
+    rollbar.handleUncaughtExceptions(config.token);
+    rollbar.handleUnhandledRejections(config.token);
 }
 
 
