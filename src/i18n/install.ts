@@ -29,7 +29,7 @@ export const localesMap: ILocalesMap =
 export const install = (bot: UniversalBot, db: Db, config: Ii18nconfig) => {
 
     // answer get started postback
-    bot.beginDialogAction('changeLanguage', '/changeLanguage');
+    bot.beginDialogAction('changelanguage', '/changeLanguage');
 
     // set the dialog itself.
     bot.dialog('/changeLanguage',

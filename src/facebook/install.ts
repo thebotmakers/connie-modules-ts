@@ -1,19 +1,24 @@
 import { UniversalBot } from 'botbuilder';
 import { ThreadSettings } from './model/ThreadSettings';
 
+export interface IMenuItem {
+    type: string;
+    title: string;
+    payload: string;
+}
 
 export interface IFacebookModuleSettings {
 
     FACEBOOK_PAGE_TOKEN: string;
-
     greetingText?: string;
+    menu?: IMenuItem[];
+    getStarted: string;
 }
 
 export function install(bot: UniversalBot, config: IFacebookModuleSettings) {
 
 
-    if(!config.FACEBOOK_PAGE_TOKEN) 
-    {
+    if (!config.FACEBOOK_PAGE_TOKEN) {
         console.error("MISSING FACEBOOK_PAGE_TOKEN ", config.FACEBOOK_PAGE_TOKEN);
     }
 
@@ -23,8 +28,18 @@ export function install(bot: UniversalBot, config: IFacebookModuleSettings) {
         threadSettings.greeting(config.greetingText);
     }
 
+    if (config.menu) {
+        threadSettings.menu(config.menu)
+    }
+
+    if (config.getStarted) {
+        threadSettings.get_started(config.getStarted)
+    }
+
+    //
+
     bot.use(
-        {            
+        {
             receive: (event, next) => {
 
                 if (event.source == 'facebook') {
