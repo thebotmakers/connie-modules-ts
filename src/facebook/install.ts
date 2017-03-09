@@ -11,6 +11,12 @@ export interface IFacebookModuleSettings {
 
 export function install(bot: UniversalBot, config: IFacebookModuleSettings) {
 
+
+    if(!config.FACEBOOK_PAGE_TOKEN) 
+    {
+        console.error("MISSING FACEBOOK_PAGE_TOKEN ", config.FACEBOOK_PAGE_TOKEN);
+    }
+
     let threadSettings = new ThreadSettings(config.FACEBOOK_PAGE_TOKEN);
 
     if (config.greetingText) {
