@@ -7,6 +7,7 @@ import { IAddress, IIdentity, UniversalBot, Message } from 'botbuilder';
 import * as uuid from 'uuid/v1'
 import { Api } from './model/Api'
 import { Application } from 'express'
+import * as rollbar from 'rollbar'
 
 export interface IUsersInstallConfig {
 
@@ -16,7 +17,7 @@ export interface IUsersInstallConfig {
 
 export const install = (bot: UniversalBot, db: Db, server: Application, config: IUsersInstallConfig) => {
 
-    let collection = db.collection('users') 
+    let collection = db.collection('users')
 
     // setup lookup user setting
 
@@ -73,7 +74,7 @@ export const install = (bot: UniversalBot, db: Db, server: Application, config: 
                         }
                         else {
 
-                            throw new Error(data.error.message);
+                            rollbar.handleError(data.error, {user: {id: user.connieId, username: user.name}});
                         }
                     })
                 }
@@ -82,7 +83,7 @@ export const install = (bot: UniversalBot, db: Db, server: Application, config: 
             })
 
             .then(user => {
-                
+
                 done(null, (config.transformUser) ? config.transformUser(user) : user)
             })
 
