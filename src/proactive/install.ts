@@ -1,6 +1,6 @@
 import { Db } from 'mongodb';
 import { User } from './../users/model/User';
-import { UniversalBot } from 'botbuilder';
+import { UniversalBot, Message } from 'botbuilder';
 import { Application } from 'express'
 import * as moment from 'moment'
 import * as async from 'async'
@@ -47,7 +47,7 @@ export interface IProactivHandlerConfig {
     handler: ProactiveHandler
 }
 
-export function add(config:IProactivHandlerConfig) {
+export function add(config: IProactivHandlerConfig) {
 
     handlers[config.id] = { logger: new Logger(config.id, config.db), query: config.query || {}, callback: config.handler }
 }
@@ -70,6 +70,8 @@ export function install(bot: UniversalBot, db: Db, server: Application) {
 
                     handlers[id].callback(bot, user, handlers[id].logger, next, req.params);
                 });
+
+                return users;
             });
         }
         else {
@@ -77,5 +79,23 @@ export function install(bot: UniversalBot, db: Db, server: Application) {
         }
 
         next()
-    })
+    });
+
+
+    add
+        ({
+            id: 'sendMessage',
+            db: db,
+            query: {},
+            handler: (bot: UniversalBot, user: User, log: Logger, next, args: any) => {
+
+                let message = new Message()
+                    .address(user.addresses['facebook'])
+                    .text(args.text);
+
+                bot.send(message)
+
+                next();
+            }
+        })
 }
