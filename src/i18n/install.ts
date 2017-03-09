@@ -1,20 +1,29 @@
 import { Db } from 'mongodb';
 import { Api } from './../users/model/Api';
 import { User } from './../users/model/User';
-import { Ii18nconfig } from './install';
 import { UniversalBot, IPromptChoiceResult } from 'botbuilder';
 import * as _ from 'lodash'
 import * as botbuilder from 'botbuilder'
 
 export interface Ii18nconfig {
-    locales: string[];
+    locales: ILocale[];
 }
 
+export interface ILocale {
+    id: string;
+    success: string;
+    error: string;
+    name: string;
+}
 
-const localesMap =
+export interface ILocalesMap {
+    [locales: string]: ILocale;
+}
+
+export const localesMap: ILocalesMap =
     {
-        en: { name: 'English' },
-        es: { name: 'Spanish' }
+        en: { id: 'en', name: 'English', success: "Language changed succesfully!", error: "Error chaning language, please try again." },
+        es: { id: 'es', name: 'Español', success: "Idioma cambiado exitosamente!!", error: "Error al cambiar el lenguage, intenta de nuevo." }
     }
 
 export const install = (bot: UniversalBot, db: Db, config: Ii18nconfig) => {
@@ -27,39 +36,45 @@ export const install = (bot: UniversalBot, db: Db, config: Ii18nconfig) => {
         [
             (session, args) => {
 
-                botbuilder.Prompts.choice(session, "Select language/Elige idioma", config.locales)
+                let choices = config.locales.map(l => l.name);
+
+                botbuilder.Prompts.choice(session, "Select language/Elige idioma", choices)
             },
             (session, arg: IPromptChoiceResult, next) => {
 
-                debugger;
-
+                const locale = _.filter(localesMap, l => l.name == arg.response.entity)[0]
                 const user = session.message.user as User;
                 const api = new Api(db);
 
-                api.update(user.connieId, { $set: { locale: arg.response.entity } })
+                api.update(user.connieId, { $set: { locale: locale.id } })
                     .then(result => {
-                        next()
+                        session.endDialog(locale.success);
                     })
                     .catch(() => {
-
-                        session.endDialog("Erro saving language option :S");
-                    });
-            },
-            (session) => {
-
-                session.endDialog("Language changed succesfully!");
+                        session.endDialog(locale.error);
+                    })
             }
-        ])
+        ]);
 
-    //default to proper locale
     bot.use
         ({
             receive: (event: any, next) => {
 
                 let user = event.user as User;
-                let locale = (_.has(user, 'facebookPageScopedProfile.locale')) ? user.facebookPageScopedProfile.locale.split('_')[0] : 'es';
+                let locale: string;
 
-                event.textLocale = locale;
+                if (user.locale) {
+                    locale = user.locale
+                }
+                else {
+                    if (_.has(user, 'facebookPageScopedProfile.locale')) {
+                        locale = user.facebookPageScopedProfile.locale.split('_')[0];
+                    }
+                }
+
+                if (locale) {
+                    event.textLocale = locale;
+                }
 
                 next();
             }
