@@ -44,7 +44,6 @@ export const install = (bot: UniversalBot, db: Db, config: Ii18nconfig) => {
                 const user = session.message.user as User;
                 const api = new Api(db);
 
-
                 session.preferredLocale(locale.id, (err) => {
 
                     if (!err) {
@@ -52,6 +51,9 @@ export const install = (bot: UniversalBot, db: Db, config: Ii18nconfig) => {
                         api.update(user.connieId, { $set: { locale: locale.id } })
                             .then(result => {
                                 session.endDialog(locale.success);
+                            })
+                            .catch(err => {
+                                session.error(new Error(locale.error))
                             })
                     } else {
 
