@@ -16,17 +16,15 @@ export interface ILocale {
     name: string;
 }
 
-export interface ILocalesMap {
-    [locales: string]: ILocale;
-}
-
-export const localesMap: ILocalesMap =
+export const localesMap =
     {
         en: { id: 'en', name: 'English', success: "Language changed succesfully!", error: "Error chaning language, please try again." },
         es: { id: 'es', name: 'Español', success: "Idioma cambiado exitosamente!!", error: "Error al cambiar el lenguage, intenta de nuevo." }
     }
 
 export const install = (bot: UniversalBot, db: Db, config: Ii18nconfig) => {
+
+    let supportedLocales = config.locales.map(l => l.id);
 
     // answer get started postback
     bot.beginDialogAction('changelanguage', '/changeLanguage');
@@ -64,15 +62,23 @@ export const install = (bot: UniversalBot, db: Db, config: Ii18nconfig) => {
                 let locale: string;
 
                 if (user.locale) {
+                    
                     locale = user.locale
                 }
                 else {
                     if (_.has(user, 'facebookPageScopedProfile.locale')) {
-                        locale = user.facebookPageScopedProfile.locale.split('_')[0];
+
+                        let fbLocale = user.facebookPageScopedProfile.locale.split('_')[0];
+
+                        if (_.includes(supportedLocales, fbLocale)) {
+
+                            locale = fbLocale;
+                        }
                     }
                 }
 
                 if (locale) {
+
                     event.textLocale = locale;
                 }
 
