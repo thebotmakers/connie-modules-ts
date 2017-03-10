@@ -1,5 +1,5 @@
 import { UniversalBot } from 'botbuilder';
-import { ThreadSettings } from './model/ThreadSettings';
+import { MessengerProfile } from './model/MessengerProfile';
 
 export interface IMenuItem {
     type: string;
@@ -10,9 +10,9 @@ export interface IMenuItem {
 export interface IFacebookModuleSettings {
 
     FACEBOOK_PAGE_TOKEN: string;
-    greetingText?: string;
-    menu?: IMenuItem[];
-    getStarted: string;
+    greetingText?: any[];
+    menu?: any[];
+    getStarted?: {};
 }
 
 export function install(bot: UniversalBot, config: IFacebookModuleSettings) {
@@ -22,7 +22,7 @@ export function install(bot: UniversalBot, config: IFacebookModuleSettings) {
         console.error("MISSING FACEBOOK_PAGE_TOKEN ", config.FACEBOOK_PAGE_TOKEN);
     }
 
-    let threadSettings = new ThreadSettings(config.FACEBOOK_PAGE_TOKEN);
+    let threadSettings = new MessengerProfile(config.FACEBOOK_PAGE_TOKEN);
 
     if (config.greetingText) {
         threadSettings.greeting(config.greetingText);
