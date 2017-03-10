@@ -44,13 +44,20 @@ export const install = (bot: UniversalBot, db: Db, config: Ii18nconfig) => {
                 const user = session.message.user as User;
                 const api = new Api(db);
 
-                api.update(user.connieId, { $set: { locale: locale.id } })
-                    .then(result => {
-                        session.endDialog(locale.success);
-                    })
-                    .catch(() => {
-                        session.endDialog(locale.error);
-                    })
+
+                session.preferredLocale(locale.id, (err) => {
+
+                    if (!err) {
+
+                        api.update(user.connieId, { $set: { locale: locale.id } })
+                            .then(result => {
+                                session.endDialog(locale.success);
+                            })
+                    } else {
+
+                        session.error(new Error(locale.error))
+                    }
+                });
             }
         ]);
 
@@ -62,7 +69,7 @@ export const install = (bot: UniversalBot, db: Db, config: Ii18nconfig) => {
                 let locale: string;
 
                 if (user.locale) {
-                    
+
                     locale = user.locale
                 }
                 else {
