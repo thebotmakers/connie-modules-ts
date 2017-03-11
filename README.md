@@ -25,6 +25,46 @@ Saves messages exchanged between your users and your bot.
 
 Let's you define multiple types of proactive messages scheduled, manual, triggered by other integrations, etc.
 
+
+#### POST
+
+`/api/proactive/:id`
+
+Executes a proactive handler of `id`, to all user that satisfy `query`.
+```json
+{
+    "query": {}, // optional, for example {connieId: `asdasdasd-asda-asdasd-ad` } wil send a message to only that user.
+    "arg1": {},
+    ...
+    "argn": {}
+}
+```
+
+`/api/proactive/sendmessage`
+
+Sends a message to all the users, that satisfy `query`
+
+```json
+{
+    "query": {},
+    "channelId": "facebook",
+    "text": "message text"
+}
+```
+
+
+`/api/proactive/beginDialog`
+
+Starts a dialog with `dialogId` to all the users that satisfy `query`
+
+```json
+{
+    "query": {},
+    "channelId": "facebook",
+    "dialogId": "/askSign"
+}
+```
+
 ### Users
 
 Autmatically lodas custom user info from their channels. and lets you link multiple accounts.
