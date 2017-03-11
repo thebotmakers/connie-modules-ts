@@ -1,18 +1,18 @@
 import { Db } from 'mongodb';
 import { User } from './../users/model/User';
-import { UniversalBot, Message } from 'botbuilder';
+import { UniversalBot, Message, IMessage } from 'botbuilder';
 import { Application } from 'express'
 import * as moment from 'moment'
 import * as async from 'async'
 
-export type ProactiveHandler = (bot: UniversalBot, user: User, log: Logger, next, args: any) => void
+export type ProactiveHandler = (bot: UniversalBot, user: User, logger: ProactiveLogger, next, args: any) => void
 
 export interface ILogEntry {
     data: any,
     timestamp?: number
 }
 
-export class Logger {
+export class ProactiveLogger {
 
     constructor(private id: string, private db: Db) {
     }
@@ -37,38 +37,45 @@ export class Logger {
 
 }
 
-const handlers: { [id: string]: { logger: Logger, query: any, callback: ProactiveHandler } } = {}
-
+const handlers: { [id: string]: { logger: ProactiveLogger, query: any, callback: ProactiveHandler } } = {}
+let database: Db;
 
 export interface IProactivHandlerConfig {
     id: string,
-    db: Db,
     query?: any,
     handler: ProactiveHandler
 }
 
 export function add(config: IProactivHandlerConfig) {
 
-    handlers[config.id] = { logger: new Logger(config.id, config.db), query: config.query || {}, callback: config.handler }
+    handlers[config.id] = { logger: new ProactiveLogger(config.id, database), query: config.query || {}, callback: config.handler }
+
+    console.log('Added proactive handler in: /api/proactive/', config.id)
 }
 
 export function install(bot: UniversalBot, db: Db, server: Application) {
 
+    //module wide instance
+    database = db;
+
+    //setup api endpoint 
+
     server.post('/api/proactive/:id', (req, res, next) => {
 
         const id = req.params.id;
-
+        
         if (id in handlers) {
 
-            let handler = handlers[id];
+            const handler = handlers[id];
+            const query = req.body.query || handler.query || {}
 
             res.send(`Starting execution of proactive handler ${id}`);
 
-            db.collection('users').find(handler.query).toArray().then<User[]>(users => {
+            db.collection('users').find(query).toArray().then<User[]>(users => {
 
                 async.eachSeries<User, {}>(users, (user, next) => {
 
-                    handlers[id].callback(bot, user, handlers[id].logger, next, req.params);
+                    handlers[id].callback(bot, user, handlers[id].logger, next, req.body);
                 });
 
                 return users;
@@ -79,23 +86,58 @@ export function install(bot: UniversalBot, db: Db, server: Application) {
         }
 
         next()
-    });
-
+    })
 
     add
         ({
-            id: 'sendMessage',
-            db: db,
+            id: 'sendmessage',
             query: {},
-            handler: (bot: UniversalBot, user: User, log: Logger, next, args: any) => {
+            handler: (bot: UniversalBot, user: User, logger: ProactiveLogger, next, args: any) => {
 
-                let message = new Message()
-                    .address(user.addresses['facebook'])
-                    .text(args.text);
+                const address = user.addresses[args.channelId]
 
-                bot.send(message)
+                const message = new Message()
+                    .text(args.text)
+                    .address(address)
 
-                next();
+                bot.send(message, (err) => {
+
+                    if (err) {
+                        
+                        console.error('ERROR sending message to ', address.user.name, address.user.id);
+                        console.error(err);
+                    }
+                    else {
+
+                        console.info('Succesfully send message to ', address.user.name, address.user.id);
+                    }
+
+                    logger.log({ data: { errror: err ? err : null } })
+
+                    next()
+                })
             }
         })
+
+    add
+        ({
+            id: 'begindialog',
+            query: {},
+            handler: (bot: UniversalBot, user: User, logger: ProactiveLogger, next, args: any) => {
+
+                let address = user.addresses[args.channelId]
+
+                bot.beginDialog(address, args.dialogId, args.dialogArgs, (err) => {
+
+                    if (err) {
+                        console.error('ERROR begining dialog to', address.user.name)
+                    }
+                    else {
+                        console.info('Succesfully begun dialog to', address.user.name)
+                    }
+                    next()
+                })
+            }
+        })
+
 }
