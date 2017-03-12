@@ -111,4 +111,13 @@ export const install = (bot: UniversalBot, db: Db, server: Application, config: 
             })
         }
     })
+
+    server.get('/api/users/:id', function (req, res, next) {
+
+        let api = new Api(db)
+
+        api.getById(req.params.id).then(users => {
+            res.send(users)
+        })
+    })
 }
