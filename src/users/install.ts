@@ -74,7 +74,7 @@ export const install = (bot: UniversalBot, db: Db, server: Application, config: 
                         }
                         else {
 
-                            rollbar.handleError(data.error, {user: {id: user.connieId, username: user.name}});
+                            rollbar.handleError(data.error, { user: { id: user.connieId, username: user.name } });
                         }
                     })
                 }
@@ -98,8 +98,17 @@ export const install = (bot: UniversalBot, db: Db, server: Application, config: 
 
         let api = new Api(db)
 
-        api.getAll().then(users => {
-            res.send(users)
-        })
+        if (req.query.page && req.query.pageSize) {
+
+            api.get(parseInt(req.query.page), parseInt(req.query.pageSize)).then(users => {
+                res.send(users)
+            });
+        }
+        else {
+
+            api.getAll().then(users => {
+                res.send(users)
+            })
+        }
     })
 }
