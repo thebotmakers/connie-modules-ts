@@ -43,6 +43,86 @@ export class QnaClient {
         });
     }
 
+    updateQnaPairs(qnaPairs: QnaPair[]): Promise<any> { //PATCH
+
+        return this.getQnAList().then(pairsToDelete => {
+
+            let body = `{
+                "add": {
+                    "qnaPairs":  ${JSON.stringify(qnaPairs)}
+                },
+                "delete": {
+                    "qnaPairs": ${JSON.stringify(pairsToDelete)}
+                }
+            }`;
+
+            return request.patch({
+                url: this.url_base,
+                headers: { 'Ocp-Apim-Subscription-Key': this.SUBSCRIPTION_KEY },
+                body: body
+            }).then(response => {
+                return this.publish();
+            });
+        });
+    }
+
+    getAnswer(question: string, top: number): Promise<QnaAnswer[]> { //POST
+        let result = [];
+        return request.post({
+            url: this.url_base + '/generateAnswer',
+            headers: { 'Ocp-Apim-Subscription-Key': this.SUBSCRIPTION_KEY },
+            body: `{
+                "question": "${question}",
+                "top": "${top}"
+            }`
+        }).then(response => {
+            let answerRes = JSON.parse(response);
+            if (answerRes && answerRes.answers) {
+                answerRes.answers.forEach(answer => {
+                    result.push(new QnaAnswer(answer.answer, answer.score));
+                });
+            }
+            return result;
+        });
+    }
+
+    //not used anymore
+    addQnaPairs(qnaPairs: QnaPair[]): Promise<any> { //PATCH
+        let bodyPairs = JSON.stringify(qnaPairs);
+        let body = `{
+                "add": {
+                    "qnaPairs": ${bodyPairs}
+                }
+            }`;
+        return request.patch({
+            url: this.url_base,
+            headers: { 'Ocp-Apim-Subscription-Key': this.SUBSCRIPTION_KEY },
+            body: body
+        }).then(response => {
+            this.publish();
+        });
+    }
+
+    
+
+    //not used anymore
+    deleteQnaPairs(qnaPairs: QnaPair[]): Promise<any> { //PATCH
+        let bodyPairs = JSON.stringify(qnaPairs);
+        let body = `{
+                "delete": {
+                    "qnaPairs": ${bodyPairs}
+                }
+            }`;
+        return request.patch({
+            url: this.url_base,
+            headers: { 'Ocp-Apim-Subscription-Key': this.SUBSCRIPTION_KEY },
+            body: body
+        }).then(response => {
+            this.publish();
+        });
+    }
+
+    //not used anymore
     addQnaPair(qnaPair: QnaPair): Promise<any> { //PATCH
         return request.patch({
             url: this.url_base,
@@ -62,6 +142,7 @@ export class QnaClient {
         });
     }
 
+    //not used anymore
     deleteQnaPair(qnaPair: QnaPair): Promise<any> { //PATCH
         return request.patch({
             url: this.url_base,
@@ -78,27 +159,6 @@ export class QnaClient {
             }`
         }).then(response => {
             this.publish();
-        });
-    }
-
-    getAnswer(question: string, top: number): Promise<QnaAnswer[]> { //POST
-        let result = [];
-        return request.post({
-            url: this.url_base + '/generateAnswer',
-            headers: { 'Ocp-Apim-Subscription-Key': this.SUBSCRIPTION_KEY },
-            body: `{
-                "question": "${question}",
-                "top": "${top}"
-            }`
-        }).then(response => {
-            let answerRes = JSON.parse(response);
-            if(answerRes && answerRes.answers)
-            {
-                answerRes.answers.forEach(answer => {
-                    result.push(new QnaAnswer(answer.answer, answer.score));
-                });
-            }
-            return result;
         });
     }
 

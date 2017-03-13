@@ -19,6 +19,7 @@ export function install(bot: UniversalBot, server: Application, knowledgeBaseId:
         });
     });
 
+    //not used anymore
     server.patch('/api/faq/add', (req, res, next) => {
         let qnaPair = new QnaPair(req.body.question, req.body.answer);
         qnaClient.addQnaPair(qnaPair).then(response => {
@@ -27,9 +28,25 @@ export function install(bot: UniversalBot, server: Application, knowledgeBaseId:
         });
     });
 
+    //not used anymore
     server.patch('/api/faq/delete', (req, res, next) => {
         let qnaPair = new QnaPair(req.body.question, req.body.answer);
         qnaClient.deleteQnaPair(qnaPair).then(response => {
+            res.send(response);
+            next();
+        });
+    });
+
+    server.patch('/api/faq', (req, res, next) => {
+
+        let qnaPairsReq = req.body.qnaPairs;
+        let qnaPairs = [];
+        qnaPairsReq.forEach(qnaPair => {
+            qnaPairs.push(new QnaPair(qnaPair.question, qnaPair.answer));
+        });
+
+        qnaClient.updateQnaPairs(qnaPairs).then(response => {
+
             res.send(response);
             next();
         });
