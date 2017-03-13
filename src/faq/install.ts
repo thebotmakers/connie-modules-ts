@@ -6,15 +6,14 @@ import { Application } from 'express';
 let qnaClient: QnaClient;
 
 export function install(bot: UniversalBot, server: Application, knowledgeBaseId: string, subscriptionKey: string) {
-
+    
     //  setup QnA client
     qnaClient = new QnaClient(knowledgeBaseId, subscriptionKey);
 
-    //setup api endpoint 
     server.get('/api/faq', (req, res, next) => {
 
-        qnaClient.getQnAList().then(list => {
-            res.send(list);
+        qnaClient.getFaq().then(faq => {
+            res.send(faq);
             next();
         });
     });
