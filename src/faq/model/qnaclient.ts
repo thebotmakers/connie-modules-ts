@@ -1,6 +1,7 @@
-import { QnaPair, QnaAnswer } from './QnaModels';
+import { QnaPair, QnaAnswer, Faq, QnA } from './QnaModels';
 import * as request from 'request-promise-native';
 var _ = require('lazy.js');
+import * as lodash from 'lodash';
 
 export class QnaClient {
 
@@ -13,6 +14,14 @@ export class QnaClient {
         this.KNOWLEDGE_BASE_ID = knowledgeBaseId;
         this.SUBSCRIPTION_KEY = subscriptionKey;
         this.url_base = `https://westus.api.cognitive.microsoft.com/qnamaker/v2.0/knowledgebases/${this.KNOWLEDGE_BASE_ID}`;
+    }
+
+    getFaq():Promise<Faq> {
+
+        return this.getQnAList().then(response => {
+            
+            return  new Faq(response);
+        })
     }
 
     getQnAList(): Promise<QnaPair[]> { //GET
