@@ -16,11 +16,11 @@ export class QnaClient {
         this.url_base = `https://westus.api.cognitive.microsoft.com/qnamaker/v2.0/knowledgebases/${this.KNOWLEDGE_BASE_ID}`;
     }
 
-    getFaq():Promise<Faq> {
+    getFaq(): Promise<Faq> {
 
         return this.getQnAList().then(response => {
-            
-            return  new Faq(response);
+
+            return new Faq(response);
         })
     }
 
@@ -52,13 +52,13 @@ export class QnaClient {
         });
     }
 
-    updateQnaPairs(qnaPairs: QnaPair[]): Promise<any> { //PATCH
+    updateQnaPairs(faq: Faq): Promise<any> { //PATCH
 
         return this.getQnAList().then(pairsToDelete => {
-
+            
             let body = `{
                 "add": {
-                    "qnaPairs":  ${JSON.stringify(qnaPairs)}
+                    "qnaPairs":  ${JSON.stringify(faq.toQnaPairs())}
                 },
                 "delete": {
                     "qnaPairs": ${JSON.stringify(pairsToDelete)}
@@ -112,7 +112,7 @@ export class QnaClient {
         });
     }
 
-    
+
 
     //not used anymore
     deleteQnaPairs(qnaPairs: QnaPair[]): Promise<any> { //PATCH

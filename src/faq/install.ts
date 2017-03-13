@@ -1,4 +1,4 @@
-import { QnaPair } from './model/QnaModels';
+import { Faq, QnaPair } from './model/QnaModels';
 import { QnaClient } from './model/qnaclient';
 import { UniversalBot } from 'botbuilder';
 import { Application } from 'express';
@@ -37,14 +37,10 @@ export function install(bot: UniversalBot, server: Application, knowledgeBaseId:
     });
 
     server.patch('/api/faq', (req, res, next) => {
+        let faq = new Faq();
+        faq.qnas = req.body.qnas;
 
-        let qnaPairsReq = req.body.qnaPairs;
-        let qnaPairs = [];
-        qnaPairsReq.forEach(qnaPair => {
-            qnaPairs.push(new QnaPair(qnaPair.question, qnaPair.answer));
-        });
-
-        qnaClient.updateQnaPairs(qnaPairs).then(response => {
+        qnaClient.updateQnaPairs(faq).then(response => {
 
             res.send(response);
             next();
