@@ -15,14 +15,39 @@ export function install(bot: UniversalBot, server: Application, knowledgeBaseId:
 
         qnaClient.getQnAList().then(list => {
             res.send(list);
-        });     
+            next();
+        });
     });
 
     server.patch('/api/faq/add', (req, res, next) => {
-        debugger;
         let qnaPair = new QnaPair(req.body.question, req.body.answer);
         qnaClient.addQnaPair(qnaPair).then(response => {
             res.send(response);
-        });     
+            next();
+        });
+    });
+
+    server.patch('/api/faq/delete', (req, res, next) => {
+        let qnaPair = new QnaPair(req.body.question, req.body.answer);
+        qnaClient.deleteQnaPair(qnaPair).then(response => {
+            res.send(response);
+            next();
+        });
+    });
+
+    server.put('/api/faq', (req, res, next) => {
+        qnaClient.publish().then(response => {
+            res.send(response);
+            next();
+        });
+    });
+
+    server.post('/api/faq/generateAnswer', (req, res, next) => {
+        let question = req.body.question;
+        let top = req.body.top;
+        qnaClient.getAnswer(question, top).then(response => {
+            res.send(response);
+            next();
+        });
     });
 }

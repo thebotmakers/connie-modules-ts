@@ -15,7 +15,7 @@ export class QnaClient {
         this.url_base = `https://westus.api.cognitive.microsoft.com/qnamaker/v2.0/knowledgebases/${this.KNOWLEDGE_BASE_ID}`;
     }
 
-    getQnAList(): Promise<QnaPair[]> { //QnaPair[] { //GET
+    getQnAList(): Promise<QnaPair[]> { //GET
 
         return request.get({
             url: this.url_base,
@@ -44,42 +44,75 @@ export class QnaClient {
     }
 
     addQnaPair(qnaPair: QnaPair): Promise<any> { //PATCH
-        debugger;
         return request.patch({
             url: this.url_base,
             headers: { 'Ocp-Apim-Subscription-Key': this.SUBSCRIPTION_KEY },
-            body: {
-                add: {
-                    qnaPairs: [
+            body: `{
+                "add": {
+                    "qnaPairs": [
                         {
-                            answer: qnaPair.answer,
-                            question: qnaPair.question
+                            "answer": "${qnaPair.answer}",
+                            "question": "${qnaPair.question}"
                         }
                     ]
                 }
-            }
+            }`
         }).then(response => {
-
-            debugger;
-
-            
+            this.publish();
         });
     }
 
-    deleteQnaPair(qnaPair: QnaPair): void { //PATCH
-
+    deleteQnaPair(qnaPair: QnaPair): Promise<any> { //PATCH
+        return request.patch({
+            url: this.url_base,
+            headers: { 'Ocp-Apim-Subscription-Key': this.SUBSCRIPTION_KEY },
+            body: `{
+                "delete": {
+                    "qnaPairs": [
+                        {
+                            "answer": "${qnaPair.answer}",
+                            "question": "${qnaPair.question}"
+                        }
+                    ]
+                }
+            }`
+        }).then(response => {
+            this.publish();
+        });
     }
 
-    getAnswer(question: string, top: number): void { //QnaAnswer { //POST
-
+    getAnswer(question: string, top: number): Promise<QnaAnswer[]> { //POST
+        let result = [];
+        return request.post({
+            url: this.url_base + '/generateAnswer',
+            headers: { 'Ocp-Apim-Subscription-Key': this.SUBSCRIPTION_KEY },
+            body: `{
+                "question": "${question}",
+                "top": "${top}"
+            }`
+        }).then(response => {
+            let answerRes = JSON.parse(response);
+            if(answerRes && answerRes.answers)
+            {
+                answerRes.answers.forEach(answer => {
+                    result.push(new QnaAnswer(answer.answer, answer.score));
+                });
+            }
+            return result;
+        });
     }
 
-    publish(): void {
-
+    publish(): Promise<any> {
+        return request.put({
+            url: this.url_base,
+            headers: { 'Ocp-Apim-Subscription-Key': this.SUBSCRIPTION_KEY }
+        }).then(response => {
+            //everything ok and published
+            return 'OK';
+        });
     }
 
-    readTsvFile(fileContent: string): QnaPair[] {
-        debugger;
+    private readTsvFile(fileContent: string): QnaPair[] {
         let result = [];
         var lines = fileContent.split('\r\n');
         if ((!lines.length) || (lines.length == 1)) return [];
