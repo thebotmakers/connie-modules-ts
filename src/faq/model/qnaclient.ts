@@ -102,7 +102,7 @@ export class QnaClient {
         });
     }
 
-    publish(): Promise<any> {
+    publish(): Promise<any> { //PUT
         return request.put({
             url: this.url_base,
             headers: { 'Ocp-Apim-Subscription-Key': this.SUBSCRIPTION_KEY }
