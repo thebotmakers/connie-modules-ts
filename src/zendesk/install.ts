@@ -19,7 +19,7 @@ export function install(bot: UniversalBot, db: Db, server: Application) {
         const id = req.params.id;
         const api = new UsersApi(db)
 
-        api.get(req.params.connieId).then(user => {
+        api.getById(req.params.connieId).then(user => {
 
             const message = new Message().text("hola se te resolvio el ticket").address(user.addresses['facebook']);
 
