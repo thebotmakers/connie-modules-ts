@@ -4,7 +4,8 @@ export interface ILocatable {
 }
 
 export class Location implements ILocatable {
-    
     latitude: number;
-    longitude: number;    
+    longitude: number;
+    x: number;
+    y: number;
 }

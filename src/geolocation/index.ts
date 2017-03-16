@@ -1,2 +1,2 @@
-export * from './model'
-export * from './conversations'
+export * from './model/Location';
+export * from './utils/utils'
