@@ -7,7 +7,7 @@ import { WatsonRecognizer } from 'botframework-watson-recognizer';
 
 export function install(bot: UniversalBot, db: Db, recognizer: WatsonRecognizer) {
 
-    recognizer.setCallback(onRecognize);
+    recognizer.on('onRecognize', onRecognize);
     let collection = db.collection('conversations');
 
     bot.use(
