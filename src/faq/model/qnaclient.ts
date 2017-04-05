@@ -79,7 +79,7 @@ export class QnaClient {
         let result = [];
         return request.post({
             url: this.url_base + '/generateAnswer',
-            headers: { 'Ocp-Apim-Subscription-Key': this.SUBSCRIPTION_KEY },
+            headers: { 'Ocp-Apim-Subscription-Key': this.SUBSCRIPTION_KEY, 'Content-Type': 'application/json' },
             body: `{
                 "question": "${question}",
                 "top": "${top}"
