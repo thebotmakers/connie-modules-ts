@@ -3,6 +3,7 @@ import { Faq, QnaPair } from './model/QnaModels';
 import { QnaClient } from './model/qnaclient';
 import { UniversalBot, IntentDialog } from 'botbuilder';
 import { Application } from 'express';
+import { TextUtils } from '../botframework';
 
 let qnaClient: QnaClient;
 
@@ -23,7 +24,11 @@ export function install(bot: UniversalBot, server: Application, intents: IntentD
     bot.dialog(`/faq`,
         [
             (session: any) => {
-                session.endConversation(session.message.answer);
+                var messages = TextUtils.split(session.message.answer, 640);
+                messages.forEach(function (text, index) {
+                    session.send(text);
+                });
+                session.endConversation();
             }
         ]);
 
