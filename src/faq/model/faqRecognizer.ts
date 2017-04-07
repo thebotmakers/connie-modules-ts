@@ -28,7 +28,6 @@ export class FaqRecognizer extends EventEmitter implements IIntentRecognizer {
 
             this.qnaClient.getAnswer(textClean, 3).then(answers => {
                 console.log(answers);
-
                 // map entities to botbuilder format
                 //result.entities = (answers as Array<QnaAnswer>).map<IEntity>(e => ({ type: "answer", entity: e.answer, startIndex: 0, endIndex: 1 }))
 
@@ -36,7 +35,7 @@ export class FaqRecognizer extends EventEmitter implements IIntentRecognizer {
                 // map intents to botbuilder format
                 result.intents = (answers as Array<QnaAnswer>).map<IIntent>(i => ({ intent: "faq", score: i.score }));
 
-                let top = answers.sort((a, b) => a.score - b.score)[0];
+                let top = answers.sort((a, b) => a.score - b.score)[answers.length - 1];
 
                 //filter intents with less than intentThreshold
                 result.score = top.score < this.intentThreshold ? 0 : top.score;
