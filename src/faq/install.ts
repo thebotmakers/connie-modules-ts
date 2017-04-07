@@ -4,6 +4,7 @@ import { QnaClient } from './model/qnaclient';
 import { UniversalBot, IntentDialog } from 'botbuilder';
 import { Application } from 'express';
 import { TextUtils } from '../botframework';
+import * as entities from 'entities';
 
 let qnaClient: QnaClient;
 
@@ -24,7 +25,8 @@ export function install(bot: UniversalBot, server: Application, intents: IntentD
     bot.dialog(`/faq`,
         [
             (session: any) => {
-                var messages = TextUtils.split(session.message.answer, 640);
+                let clearText = entities.decodeXML(session.message.answer);
+                var messages = TextUtils.split(clearText, 640);
                 messages.forEach(function (text, index) {
                     session.send(text);
                 });
