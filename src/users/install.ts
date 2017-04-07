@@ -66,7 +66,8 @@ export const install = (bot: UniversalBot, db: Db, server: Application, config: 
                                     {
                                         facebookPageScopedProfile: data,
                                         firstName: data.first_name,
-                                        lastName: data.last_name
+                                        lastName: data.last_name,
+                                        name: `${data.first_name} ${data.last_name}` //override name value with the real data from facebook
                                     }
                                 }
 
