@@ -1,8 +1,8 @@
 export class TextUtils {
 
     static split(text: string, maxChars : number) : string[] {
-        let splitText = text.split('.');
-
+        let splitText = text.split('. ');
+        
         let texts : string[] = [];
         let tmpText = splitText[0];
         splitText.forEach((element, index) => {    
