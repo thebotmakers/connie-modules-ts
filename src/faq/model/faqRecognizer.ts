@@ -27,7 +27,6 @@ export class FaqRecognizer extends EventEmitter implements IIntentRecognizer {
             let textClean = context.message.text.replace(/(\r\n|\n|\r)/gm, " ");
 
             this.qnaClient.getAnswer(textClean, 3).then(answers => {
-                console.log(answers);
                 // map entities to botbuilder format
                 //result.entities = (answers as Array<QnaAnswer>).map<IEntity>(e => ({ type: "answer", entity: e.answer, startIndex: 0, endIndex: 1 }))
 
@@ -38,7 +37,7 @@ export class FaqRecognizer extends EventEmitter implements IIntentRecognizer {
                 let top = answers.sort((a, b) => a.score - b.score)[answers.length - 1];
 
                 //filter intents with less than intentThreshold
-                result.score = top.score < this.intentThreshold ? 0 : top.score;
+                result.score = (top.score / 100) < this.intentThreshold ? 0 : (top.score / 100);
                 result.intent = "faq";
 
                 //Add intent and score to message object
