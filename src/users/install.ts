@@ -52,7 +52,7 @@ export const install = (bot: UniversalBot, db: Db, server: Application, config: 
 
             .then((user: User) => {
 
-                if (!user.facebookPageScopedProfile && address.channelId == 'facebook') {
+                if ((!user.facebookPageScopedProfile || !user.firstName) && address.channelId == 'facebook') {
 
                     let fb = new FaceobokApi(config.FACEBOOK_PAGE_TOKEN)
 
