@@ -74,8 +74,7 @@ export const install = (bot: UniversalBot, db: Db, server: Application, config: 
                             return collection.updateOne({ id: user.id }, update).then(result => user) // update and transform back to user
                         }
                         else {
-
-                            rollbar.handleError(data.error, { user: { id: user.connieId, username: user.name } });
+                            rollbar.info(data.error, null, { user: { id: user.connieId, username: user.name } });
                         }
                     })
                 }

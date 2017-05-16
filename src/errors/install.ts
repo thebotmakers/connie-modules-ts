@@ -2,7 +2,7 @@ import { User } from '../users';
 import { IRollbarReporterConfig } from './install';
 import { UniversalBot } from 'botbuilder'
 import * as nodemailer from 'nodemailer'
-import * as rollbar from 'rollbar'
+import * as Rollbar from 'rollbar'
 
 
 export interface IRollbarReporterConfig {
@@ -14,12 +14,12 @@ export const installRollbarReporter = (bot: UniversalBot, config: IRollbarReport
 
     let originalSessionErrorHandler;
 
-    rollbar.init
-        (
-        config.token,
-        {
-            environment: config.environment
-        });
+    let rollbar = Rollbar.init({
+        accessToken: config.token,
+        handleUncaughtExceptions: true,
+        handleUnhandledRejections: true,
+        environment: config.environment
+    });
 
     bot.use
         ({
@@ -35,20 +35,19 @@ export const installRollbarReporter = (bot: UniversalBot, config: IRollbarReport
 
                     rollbar.handleErrorWithPayloadData(
                         err,
+                        null,
                         {
                             custom:
                             {
                                 message: session.message.text,
                                 channel: session.message.address.channelId,
                                 id: session.message.address.user.id,
-                                sourceEvent: JSON.stringify(session.message.sourceEvent)
-                            }
-                        },
-                        {
-                            user:
-                            {
-                                id: user.connieId,
-                                username: user.name
+                                sourceEvent: JSON.stringify(session.message.sourceEvent),
+                                user:
+                                {
+                                    id: user.connieId,
+                                    username: user.name
+                                }
                             }
                         });
 
@@ -59,9 +58,6 @@ export const installRollbarReporter = (bot: UniversalBot, config: IRollbarReport
                 next();
             }
         });
-
-    rollbar.handleUncaughtExceptions(config.token);
-    rollbar.handleUnhandledRejections(config.token);
 }
 
 
