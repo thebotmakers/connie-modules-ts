@@ -1,6 +1,7 @@
 import { Db } from 'mongodb';
 import { User } from './../users/model/User';
-import { UniversalBot, Message, IMessage } from 'botbuilder';
+import { UniversalBot, Message, IMessage, Session } from 'botbuilder';
+import * as builder from 'botbuilder';
 import { Application } from 'express'
 import * as moment from 'moment'
 import * as async from 'async'
@@ -40,17 +41,91 @@ export class ProactiveLogger {
 const handlers: { [id: string]: { logger: ProactiveLogger, query: any, callback: ProactiveHandler } } = {}
 let database: Db;
 
-export interface IProactivHandlerConfig {
+export interface IProactiveHandlerConfig {
     id: string,
     query?: any,
     handler: ProactiveHandler
 }
 
-export function add(config: IProactivHandlerConfig) {
+export function add(config: IProactiveHandlerConfig) {
 
     handlers[config.id] = { logger: new ProactiveLogger(config.id, database), query: config.query || {}, callback: config.handler }
 
     console.log('Added proactive handler in: /api/proactive/', config.id)
+}
+
+export interface IProactivePageLikeConfig {
+    pageUrl: string,
+    imageUrl: string,
+    title: string,
+    subtitle: string
+}
+
+export function addPageLike(bot: UniversalBot, config: IProactivePageLikeConfig) {
+
+    bot.dialog('/pageLike', [
+
+        (session: Session, args, next) => {
+            let user: User = session.message.user as User;
+            var msg = new builder.Message(session)
+                .attachmentLayout(builder.AttachmentLayout.carousel)
+                .attachments([
+                    new builder.HeroCard(session)
+                        .title(session.localizer.gettext(user.locale, config.title))
+                        .subtitle(session.localizer.gettext(user.locale, config.subtitle))
+                        .images([
+                            builder.CardImage.create(session, config.imageUrl)
+                                .tap(builder.CardAction.showImage(session, config.imageUrl)),
+                        ])
+                        .buttons([
+                            builder.CardAction.openUrl(session, config.pageUrl, session.localizer.gettext(user.locale, 'Like'))
+                        ])
+                ]);
+            session.endConversation(msg);
+        }
+    ]);
+
+    add({
+        id: 'pageLike',
+        query: {},
+        handler: (bot, user, logger, next, args) => {
+            
+            let facebookAddress = user.addresses['facebook'];
+            if (facebookAddress) {
+                logger.exists({ 'data.facebookId': facebookAddress.user.id }).then(exists => {
+                    if (exists) {
+                        console.log('Already send page like to', facebookAddress.user.id, facebookAddress.user.name);
+                        next();
+                    }
+                    else {
+                        try {
+
+                            bot.beginDialog(facebookAddress, '/pageLike', null, err => {
+                                if (err) {
+                                    console.error('Error sending message sent to', facebookAddress.user.id, facebookAddress.user.name);
+                                    logger.log({ data: { facebookId: facebookAddress.user.id, error: err } });
+                                    next();
+                                }
+                                else {
+                                    console.log('Message sent to', facebookAddress.user.id, facebookAddress.user.name);
+                                    logger.log({ data: { facebookId: facebookAddress.user.id } });
+                                    next();
+                                }
+                            });
+
+                        }
+                        catch (e) {
+                            console.log(`Error sending message to ${facebookAddress.user.id} ${facebookAddress.user.name}: ${(<Error>e).message}`);
+                            next();
+                        }
+                    }
+                });
+            }
+            else {
+                next();
+            }
+        }
+    });
 }
 
 export function install(bot: UniversalBot, db: Db, server: Application) {
@@ -63,7 +138,7 @@ export function install(bot: UniversalBot, db: Db, server: Application) {
     server.post('/api/proactive/:id', (req, res, next) => {
 
         const id = req.params.id;
-        
+
         if (id in handlers) {
 
             const handler = handlers[id];
@@ -103,7 +178,7 @@ export function install(bot: UniversalBot, db: Db, server: Application) {
                 bot.send(message, (err) => {
 
                     if (err) {
-                        
+
                         console.error('ERROR sending message to ', address.user.name, address.user.id);
                         console.error(err);
                     }
