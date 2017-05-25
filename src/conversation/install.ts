@@ -9,6 +9,7 @@ export function install(bot: UniversalBot, db: Db, recognizer: WatsonRecognizer)
 
     recognizer.on('onRecognize', onRecognize);
     let collection = db.collection('conversations');
+    collection.createIndex({ conversationId: 1 });
 
     bot.use(
         {
@@ -31,6 +32,7 @@ export function install(bot: UniversalBot, db: Db, recognizer: WatsonRecognizer)
 export function installGeneric(bot: UniversalBot, db: Db) {
 
     let collection = db.collection('conversations');
+    collection.createIndex({ conversationId: 1 });
 
     bot.use(
         {
