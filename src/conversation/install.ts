@@ -56,8 +56,6 @@ function onReceive(event: any, collection: Collection) {
 
         collection.findOneAndUpdate({ "conversationId": conversation.conversationId },
             { $push: { "messages": message } }, { upsert: true });
-
-        console.log('------------receive        event');
     }
 }
 
@@ -72,7 +70,5 @@ function onSend(event: any, collection: Collection) {
 
         collection.findOneAndUpdate({ "conversationId": conversation.conversationId },
             { $push: { "messages": message } }, { upsert: true });
-
-        console.log('------------send           event');
     }
 }
