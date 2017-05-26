@@ -1,5 +1,4 @@
 import { Server } from 'restify';
-
 import { Api as FaceobokApi, IFacebookPageScopedProfile } from './../facebook';
 import { User } from './model/User';
 import { Db } from 'mongodb';
@@ -15,7 +14,11 @@ export interface IUsersInstallConfig {
     transformUser?: (user: User) => User;
 }
 
+const dbs: { [botName: string]: Db } = {}
+
 export const install = (bot: UniversalBot, db: Db, server: Application, config: IUsersInstallConfig) => {
+
+    dbs[bot.name] = db;
 
     let collection = db.collection('users')
 
@@ -121,3 +124,8 @@ export const install = (bot: UniversalBot, db: Db, server: Application, config: 
         })
     })
 }
+
+export const api = (bot: UniversalBot) => {
+    
+    return new Api(dbs[bot.name]);
+} 
