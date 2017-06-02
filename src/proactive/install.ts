@@ -2,11 +2,14 @@ import { Db } from 'mongodb';
 import { User } from './../users/model/User';
 import { UniversalBot, Message, IMessage, Session } from 'botbuilder';
 import * as builder from 'botbuilder';
-import { Application } from 'express'
-import * as moment from 'moment'
-import * as async from 'async'
+import { Application } from 'express';
+import * as moment from 'moment';
+import * as async from 'async';
+import * as path from 'path';
+let fs = require('fs');
+import * as request from 'request';
 
-export type ProactiveHandler = (bot: UniversalBot, user: User, logger: ProactiveLogger, next, args: any) => void
+export type ProactiveHandler = (bot: UniversalBot, user: User, logger: ProactiveLogger, next, args: any) => void;
 
 export interface ILogEntry {
     data: any,
@@ -58,29 +61,56 @@ export interface IProactivePageLikeConfig {
     pageUrl: string,
     imageUrl: string,
     title: string,
-    subtitle: string
+    subtitle: string,
+    facebookPageToken: string
 }
 
-export function addPageLike(bot: UniversalBot, config: IProactivePageLikeConfig) {
+export function addPageLike(bot: UniversalBot, server: Application, config: IProactivePageLikeConfig) {
 
     bot.dialog('/pageLike', [
 
         (session: Session, args, next) => {
             let user: User = session.message.user as User;
-            var msg = new builder.Message(session)
-                .attachmentLayout(builder.AttachmentLayout.carousel)
-                .attachments([
-                    new builder.HeroCard(session)
-                        .title(session.localizer.gettext(user.locale, config.title))
-                        .subtitle(session.localizer.gettext(user.locale, config.subtitle))
-                        .images([
-                            builder.CardImage.create(session, config.imageUrl)
-                                .tap(builder.CardAction.showImage(session, config.imageUrl)),
-                        ])
-                        .buttons([
-                            builder.CardAction.openUrl(session, config.pageUrl, session.localizer.gettext(user.locale, 'Like'))
-                        ])
-                ]);
+            let pageLikeUrl = `https://${args.host}/api/webviews/pageLike`;
+            console.log(pageLikeUrl);
+
+            /** add URL to whitelisted_domains */
+            request.post({
+                url: 'https://graph.facebook.com/v2.9/me/messenger_profile?access_token=' + config.facebookPageToken,
+                form: { whitelisted_domains: [pageLikeUrl] }
+            }, (err, httpResponse, body) => {
+                console.log(body);
+            });
+
+            let msg = new builder.Message(session);
+            msg.sourceEvent({
+                facebook: {
+
+                    attachment: {
+                        type: 'template',
+                        payload: {
+                            template_type: 'generic',
+                            elements: [
+                                {
+                                    title: session.localizer.gettext(user.locale, config.title),
+                                    image_url: config.imageUrl,
+                                    subtitle: session.localizer.gettext(user.locale, config.subtitle),
+                                    buttons: [
+                                        {
+                                            type: "web_url",
+                                            url: pageLikeUrl,
+                                            title: session.localizer.gettext(user.locale, 'Like'),
+                                            webview_height_ratio: "compact"
+                                        }
+                                    ]
+                                }
+                            ]
+                        }
+                    }
+
+                }
+            });
+
             session.endConversation(msg);
         }
     ]);
@@ -89,7 +119,7 @@ export function addPageLike(bot: UniversalBot, config: IProactivePageLikeConfig)
         id: 'pageLike',
         query: {},
         handler: (bot, user, logger, next, args) => {
-            
+
             let facebookAddress = user.addresses['facebook'];
             if (facebookAddress) {
                 logger.exists({ 'data.facebookId': facebookAddress.user.id }).then(exists => {
@@ -100,7 +130,7 @@ export function addPageLike(bot: UniversalBot, config: IProactivePageLikeConfig)
                     else {
                         try {
 
-                            bot.beginDialog(facebookAddress, '/pageLike', null, err => {
+                            bot.beginDialog(facebookAddress, '/pageLike', { host: args.host }, err => {
                                 if (err) {
                                     console.error('Error sending message sent to', facebookAddress.user.id, facebookAddress.user.name);
                                     logger.log({ data: { facebookId: facebookAddress.user.id, error: err } });
@@ -126,6 +156,15 @@ export function addPageLike(bot: UniversalBot, config: IProactivePageLikeConfig)
             }
         }
     });
+
+    //add GET to webview page
+    server.get('/api/webviews/pageLike', function (req, res) {
+
+        fs.readFile(path.join(__dirname, '../../public/webviews/pageLike/index.html'), 'utf8', function (err, data) {
+            let html = data.replace('{pageUrl}', config.pageUrl);
+            res.send(html);
+        });
+    });
 }
 
 export function install(bot: UniversalBot, db: Db, server: Application) {
@@ -150,7 +189,7 @@ export function install(bot: UniversalBot, db: Db, server: Application) {
 
                 async.eachSeries<User, {}>(users, (user, next) => {
 
-                    handlers[id].callback(bot, user, handlers[id].logger, next, req.body);
+                    handlers[id].callback(bot, user, handlers[id].logger, next, { body: req.body, host: req.headers.host });
                 });
 
                 return users;
@@ -200,9 +239,9 @@ export function install(bot: UniversalBot, db: Db, server: Application) {
             query: {},
             handler: (bot: UniversalBot, user: User, logger: ProactiveLogger, next, args: any) => {
 
-                let address = user.addresses[args.channelId]
+                let address = user.addresses[args.body.channelId]
 
-                bot.beginDialog(address, args.dialogId, args.dialogArgs, (err) => {
+                bot.beginDialog(address, args.body.dialogId, args.body.dialogArgs, (err) => {
 
                     if (err) {
                         console.error('ERROR begining dialog to', address.user.name)
