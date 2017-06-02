@@ -54,13 +54,11 @@ export const install = (bot: UniversalBot, db: Db, server: Application, config: 
             })
 
             .then((user: User) => {
-
-                if ((!user.facebookPageScopedProfile || !user.firstName) && address.channelId == 'facebook') {
+                if ((!user.facebookPageScopedProfile || !user.firstName) && address.channelId == 'facebook' && (!user.blocked)) {
 
                     let fb = new FaceobokApi(config.FACEBOOK_PAGE_TOKEN)
 
                     return fb.getProfile(address.user.id).then((data: IFacebookPageScopedProfile) => {
-
                         if (!('error' in data)) {
 
                             let update =
@@ -70,13 +68,23 @@ export const install = (bot: UniversalBot, db: Db, server: Application, config: 
                                         facebookPageScopedProfile: data,
                                         firstName: data.first_name,
                                         lastName: data.last_name,
-                                        name: `${data.first_name} ${data.last_name}` //override name value with the real data from facebook
+                                        name: `${data.first_name} ${data.last_name}` //override name value with the real data from facebook                                        
                                     }
                                 }
 
                             return collection.updateOne({ id: user.id }, update).then(result => user) // update and transform back to user
                         }
                         else {
+                            if (data.error.error_subcode == 2018001) { //"No matching user" means user blocked the bot
+                                let update = {
+                                    $set: {
+                                        blocked: true
+                                    }
+                                }
+
+                                collection.updateOne({ id: user.id }, update).then(result => user) // update and transform back to user
+                                console.log(`<User blocked>: connieId: ${user.connieId}, user.name: ${user.name}`);
+                            }
                             rollbar.info(data.error, null, { user: { id: user.connieId, username: user.name } });
                         }
                     })

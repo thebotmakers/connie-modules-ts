@@ -19,4 +19,6 @@ export class User implements IIdentity {
     facebookPageScopedProfile: IFacebookPageScopedProfile;
 
     custom: any;
+
+    blocked: boolean;
 }
