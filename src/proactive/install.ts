@@ -161,7 +161,8 @@ export function addPageLike(bot: UniversalBot, server: Application, config: IPro
     //add GET to webview page
     server.get('/api/webviews/pageLike', function (req, res) {
         fs.readFile(path.join(__dirname, '../../public/webviews/pageLike/index.html'), 'utf8', function (err, data) {
-            let html = data.replace('{pageUrl}', config.pageUrl).replace('{appId}', config.facebookAppId);
+            let html = data.replace(new RegExp('{pageUrl}', 'g'), config.pageUrl);
+            html = html.replace(new RegExp('{appId}', 'g'), config.facebookAppId);
             res.send(html);
         });
     });
