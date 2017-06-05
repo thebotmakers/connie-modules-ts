@@ -73,14 +73,13 @@ export function addPageLike(bot: UniversalBot, server: Application, config: IPro
         (session: Session, args, next) => {
             let user: User = session.message.user as User;
             let pageLikeUrl = `https://${args.host}/api/webviews/pageLike`;
-            console.log(pageLikeUrl);
 
             /** add URL to whitelisted_domains */
             request.post({
                 url: 'https://graph.facebook.com/v2.9/me/messenger_profile?access_token=' + config.facebookPageToken,
                 form: { whitelisted_domains: [pageLikeUrl] }
             }, (err, httpResponse, body) => {
-                console.log(body);
+
             });
 
             let msg = new builder.Message(session);
@@ -100,7 +99,7 @@ export function addPageLike(bot: UniversalBot, server: Application, config: IPro
                                         {
                                             type: "web_url",
                                             url: pageLikeUrl,
-                                            title: session.localizer.gettext(user.locale, 'Like'),
+                                            title: session.localizer.gettext(user.locale, 'Me gusta'),
                                             webview_height_ratio: "compact"
                                         }
                                     ]
@@ -180,7 +179,6 @@ export function install(bot: UniversalBot, db: Db, server: Application) {
         const id = req.params.id;
 
         if (id in handlers) {
-
             const handler = handlers[id];
             const query = req.body.query || handler.query || {}
 
