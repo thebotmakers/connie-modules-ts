@@ -62,8 +62,9 @@ export interface IProactivePageLikeConfig {
     imageUrl: string,
     title: string,
     subtitle: string,
+    webviewTitle: string,
     facebookPageToken: string,
-    facebookAppId: string
+    facebookAppId: string,
 }
 
 export function addPageLike(bot: UniversalBot, server: Application, config: IProactivePageLikeConfig) {
@@ -162,6 +163,7 @@ export function addPageLike(bot: UniversalBot, server: Application, config: IPro
         fs.readFile(path.join(__dirname, '../../public/webviews/pageLike/index.html'), 'utf8', function (err, data) {
             let html = data.replace(new RegExp('{pageUrl}', 'g'), config.pageUrl);
             html = html.replace(new RegExp('{appId}', 'g'), config.facebookAppId);
+            html = html.replace(new RegExp('{webviewTitle}', 'g'), config.webviewTitle);
             res.send(html);
         });
     });
