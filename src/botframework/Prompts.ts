@@ -3,7 +3,7 @@ import * as builder from 'botbuilder'
 
 export class Prompts {
 
-    static optionalKeyboardCard(session: Session, suggestions: string[] | ICardAction[], message?: string) {
+    static optionalKeyboardCard(session: Session, suggestions: string[] | ICardAction[] | CardAction[], message?: string) {
 
         const buttons = (<any>suggestions).map(s => s.toAction ? s.toAction() : CardAction.imBack(session, s, s))
         const msg = new Message()
